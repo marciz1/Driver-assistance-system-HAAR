@@ -17,19 +17,23 @@ import org.opencv.core.Mat;
 import org.opencv.objdetect.CascadeClassifier;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-
     private static String TAG ="MainActivity";
+
+    private boolean sleep;
+    private int n;
+    private MediaPlayer alarmSound;
+
     JavaCameraView javaCameraView;
-    Mat mRgba, mRgbaT;
-    static CascadeClassifier faceCascade;
-    static CascadeClassifier eyesClosedCascade;
-    static CascadeClassifier eyesOpenedCascade;
+    Mat mRgba;
+
+    private static CascadeClassifier faceCascade;
+    private static CascadeClassifier eyesClosedCascade;
+    private static CascadeClassifier eyesOpenedCascade;
 
     static {
         System.loadLibrary("native-lib");
         System.loadLibrary("opencv_java3");
     }
-
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -46,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     };
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         eyesClosedCascade = new CascadeClassifier(  Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/0_995_0_2.xml"  );
         eyesOpenedCascade = new CascadeClassifier(Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/haarcascade_eye_tree_eyeglasses.xml");
 
+        n = 0;
+        alarmSound = MediaPlayer.create(this, R.raw.alarm2);
         setContentView(R.layout.activity_main);
-        final MediaPlayer alarmSound = MediaPlayer.create(this, R.raw.alarm2);
 
         javaCameraView = findViewById(R.id.java_camera_view);
         javaCameraView.setCameraIndex(1);
@@ -66,20 +69,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         javaCameraView.setCvCameraViewListener(this);
     }
 
-
     protected void onPause(){
         super.onPause();
         if(javaCameraView!=null)
             javaCameraView.disableView();
     }
 
-
     protected void onDestroy(){
         super.onDestroy();
         if(javaCameraView!=null)
             javaCameraView.disableView();
     }
-
 
     protected void onResume(){
         super.onResume();
@@ -107,8 +107,23 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+
         mRgba = inputFrame.rgba();
-        OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(), faceCascade.getNativeObjAddr(), eyesOpenedCascade.getNativeObjAddr(), eyesClosedCascade.getNativeObjAddr());
+        sleep = OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(), faceCascade.getNativeObjAddr(), eyesOpenedCascade.getNativeObjAddr(), eyesClosedCascade.getNativeObjAddr());
+        checkIfSleeping();
+        if (n == 3) alarmSound.start();
+//        if (n == 0) alarmSound.stop();
+        Log.w(TAG, "onCameraFrame: " + n );
+
         return mRgba;
+    }
+
+    public void checkIfSleeping() {
+
+        if (sleep) {
+            if(n<3) n++;
+        } else {
+            if(n>0) n--;
+        }
     }
 }

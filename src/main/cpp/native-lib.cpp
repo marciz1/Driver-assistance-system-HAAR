@@ -9,22 +9,26 @@ using namespace std;
 
 extern "C" {
 
-void detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesOpenedCascade, CascadeClassifier& eyesClosedCascade);
+bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesOpenedCascade, CascadeClassifier& eyesClosedCascade);
 void rotate(Mat& src, int angle);
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_com_example_darte_opencv_1ndk1_OpencvNativeClass_faceDetection(JNIEnv *env, jclass type,
                                                                     jlong matAddrRgba, jlong cascadeFace, jlong cascadeOpenedEyes, jlong cascadeClosedEyes) {
-
     Mat& frame = *(Mat*)matAddrRgba;
     CascadeClassifier& cascadeFace1 = *(CascadeClassifier*) cascadeFace;
     CascadeClassifier& cascadeOpenedEyes1 = *(CascadeClassifier*) cascadeOpenedEyes;
     CascadeClassifier& cascadeClosedEyes1 = *(CascadeClassifier*) cascadeClosedEyes;
-    detect(frame, cascadeFace1, cascadeOpenedEyes1, cascadeClosedEyes1);
 
+    bool sleep = detect(frame, cascadeFace1, cascadeOpenedEyes1, cascadeClosedEyes1);
+    jboolean jsleep = (jboolean) sleep;
+    return jsleep;
 }
 
-void detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesOpenedCascade, CascadeClassifier& eyesClosedCascade ){
+bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesOpenedCascade, CascadeClassifier& eyesClosedCascade ){
+
+    bool sleep = false;
+    bool eyesOpenedBln = false;
 
     std::vector<Rect> faces;
     Mat frameGray;
@@ -47,6 +51,8 @@ void detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
         eyesOpenedCascade.detectMultiScale( faceROI, eyesOpened, 1.1, 13, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30));
         eyesClosedCascade.detectMultiScale( faceROI, eyesClosed, 1.1, 13, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
+        if(eyesOpened.size() == 2) eyesOpenedBln = true;
+        if(eyesClosed.size() == 2 && !eyesOpenedBln) sleep = true;
 
         for( size_t j = 0; j < eyesOpened.size(); j++ ){
             rectangle(frame, Point(faces[i].x + eyesOpened[j].x, faces[i].y + eyesOpened[i].y),
@@ -60,6 +66,9 @@ void detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
                       Scalar(255, 0, 0), 1, LINE_AA);
         }
     }
+
+    return sleep;
+
 }
 
 JNIEXPORT void JNICALL
