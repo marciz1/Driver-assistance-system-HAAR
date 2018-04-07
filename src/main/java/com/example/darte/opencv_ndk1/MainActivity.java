@@ -20,7 +20,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static String TAG ="MainActivity";
 
     private boolean sleep;
-    private int n;
+    private boolean alarmStart;
+    private long startTime;
+    private long estimatedTime;
+    private int counter;
     private MediaPlayer alarmSound;
 
     JavaCameraView javaCameraView;
@@ -58,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         eyesClosedCascade = new CascadeClassifier(  Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/0_995_0_2.xml"  );
         eyesOpenedCascade = new CascadeClassifier(Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/haarcascade_eye_tree_eyeglasses.xml");
 
-        n = 0;
+        counter = 0;
+        alarmStart = false;
         alarmSound = MediaPlayer.create(this, R.raw.alarm2);
         setContentView(R.layout.activity_main);
 
@@ -109,21 +113,37 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
+
         sleep = OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(), faceCascade.getNativeObjAddr(), eyesOpenedCascade.getNativeObjAddr(), eyesClosedCascade.getNativeObjAddr());
-        checkIfSleeping();
-        if (n == 3) alarmSound.start();
-//        if (n == 0) alarmSound.stop();
-        Log.w(TAG, "onCameraFrame: " + n );
+
+        runAlarm(3, 5);
 
         return mRgba;
     }
 
-    public void checkIfSleeping() {
+    public void runAlarm(int sensity, int alarmLength) {
+
+        Log.w(TAG, "onCameraFrame: " + counter);
 
         if (sleep) {
-            if(n<3) n++;
+            if(counter < sensity) counter++;
         } else {
-            if(n>0) n--;
+            if(counter > 0) counter--;
         }
+
+        if (counter == sensity) {
+            if(!alarmStart) {
+                startTime = System.currentTimeMillis();
+                alarmStart = true;
+            }
+        }
+
+        if(alarmStart){
+            estimatedTime = System.currentTimeMillis() - startTime;
+            if((estimatedTime/1000 < alarmLength)) alarmSound.start();
+            else alarmStart = false;
+        }
+
+        Log.w(TAG, "runAlarm: " + alarmStart );
     }
 }
