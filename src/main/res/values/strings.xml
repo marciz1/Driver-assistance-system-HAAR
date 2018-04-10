@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">OpenCV_NDK1</string>
+    <string name="app_name">Driver-assistance-system</string>
+
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

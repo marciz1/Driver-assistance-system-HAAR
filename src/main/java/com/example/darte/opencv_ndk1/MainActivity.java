@@ -1,5 +1,6 @@
 package com.example.darte.opencv_ndk1;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private long estimatedTime;
     private int counter;
     private MediaPlayer alarmSound;
+
+    private int sensity, alarmLength;
 
     JavaCameraView javaCameraView;
     Mat mRgba;
@@ -65,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         alarmStart = false;
         alarmSound = MediaPlayer.create(this, R.raw.alarm2);
         setContentView(R.layout.activity_main);
+
+        sensity = getIntent().getExtras().getInt("sensity");
+        alarmLength = getIntent().getExtras().getInt("alarmLength");
 
         javaCameraView = findViewById(R.id.java_camera_view);
         javaCameraView.setCameraIndex(1);
@@ -114,16 +120,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         mRgba = inputFrame.rgba();
 
-        sleep = OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(), faceCascade.getNativeObjAddr(), eyesOpenedCascade.getNativeObjAddr(), eyesClosedCascade.getNativeObjAddr());
+        sleep = OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(),
+                faceCascade.getNativeObjAddr(),
+                eyesOpenedCascade.getNativeObjAddr(),
+                eyesClosedCascade.getNativeObjAddr());
 
-        runAlarm(3, 5);
+        runAlarm(sensity, alarmLength);
 
         return mRgba;
     }
 
     public void runAlarm(int sensity, int alarmLength) {
 
-        Log.w(TAG, "onCameraFrame: " + counter);
+        Log.w(TAG, "counter: " + counter);
 
         if (sleep) {
             if(counter < sensity) counter++;
