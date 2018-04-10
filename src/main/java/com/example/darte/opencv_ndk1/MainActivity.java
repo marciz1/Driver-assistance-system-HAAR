@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private int counter;
     private MediaPlayer alarmSound;
 
-    private int sensity, alarmLength;
+    private int sensity, sensityMax, alarmLength;
 
     JavaCameraView javaCameraView;
     Mat mRgba;
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         faceCascade = new CascadeClassifier( Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/lbpcascade_frontalface_improved.xml" );
         eyesClosedCascade = new CascadeClassifier(  Environment.getExternalStorageDirectory().getAbsolutePath() + "/opencv/0_995_0_2.xml"  );
@@ -67,10 +68,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         counter = 0;
         alarmStart = false;
         alarmSound = MediaPlayer.create(this, R.raw.alarm2);
-        setContentView(R.layout.activity_main);
 
-        sensity = getIntent().getExtras().getInt("sensity");
-        alarmLength = getIntent().getExtras().getInt("alarmLength");
+        loadValuesFromSettings();
 
         javaCameraView = findViewById(R.id.java_camera_view);
         javaCameraView.setCameraIndex(1);
@@ -103,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0,  this, mLoaderCallback);
 
         }
+    }
+
+    public void loadValuesFromSettings(){
+        sensity = getIntent().getExtras().getInt("sensity");
+        sensityMax = getIntent().getExtras().getInt("sensityMax");
+        sensity = (sensityMax - sensity) + 1;
+        alarmLength = getIntent().getExtras().getInt("alarmLength") + 1;
     }
 
     @Override

@@ -14,6 +14,7 @@ public class SettingsActivity extends Activity {
 
     private Button button;
     private int sensity;
+    private int sensityMax;
     private int alarmLength;
 
     @Override
@@ -62,6 +63,7 @@ public class SettingsActivity extends Activity {
         button.setOnClickListener((v) -> {
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
             intent.putExtra("sensity", sensity);
+            intent.putExtra("sensityMax", sensitySeekBar.getMax());
             intent.putExtra("alarmLength", alarmLength);
             startActivity(intent);
         });
