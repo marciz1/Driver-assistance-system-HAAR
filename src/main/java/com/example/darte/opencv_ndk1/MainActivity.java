@@ -13,6 +13,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.objdetect.CascadeClassifier;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setContentView(R.layout.activity_main);
 
         faceCascade = new CascadeClassifier( Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cascades/lbpcascade_frontalface_improved.xml" );
-        eyesClosedCascade = new CascadeClassifier(  Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cascades/0_995_0_2.xml"  );
+        eyesClosedCascade = new CascadeClassifier(  Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cascades/haar_closed_eye_improved.xml"  );
         eyesOpenedCascade = new CascadeClassifier(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cascades/haarcascade_eye_tree_eyeglasses.xml");
 
         counter = 0;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 faceCascade.getNativeObjAddr(),
                 eyesOpenedCascade.getNativeObjAddr(),
                 eyesClosedCascade.getNativeObjAddr());
-
+        Core.flip(mRgba, mRgba, 1);
         runAlarm(sleep, sensity, alarmLength);
 
         return mRgba;

@@ -34,6 +34,7 @@ bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
     Mat frameGray;
     Mat eyeROIBin;
 
+    rotate(frame, 90);
     cvtColor( frame, frameGray, CV_BGR2GRAY );
     equalizeHist( frameGray, frameGray );
 
@@ -67,6 +68,7 @@ bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
         }
     }
 
+    rotate(frame, -90);
     return sleep;
 
 }

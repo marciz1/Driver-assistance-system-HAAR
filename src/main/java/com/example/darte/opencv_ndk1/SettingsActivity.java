@@ -44,8 +44,8 @@ public class SettingsActivity extends Activity {
         setContentView(R.layout.activity_settings);
 
 
-        final int[] cascades = new int[] { R.raw.haar_closed_eye, R.raw.lbpcascade_frontalface_improved, R.raw.haarcascade_eye_tree_eyeglasses};
-        final String[] cascadesString = new String[] { "haar_closed_eye.xml", "lbpcascade_frontalface_improved.xml", "haarcascade_eye_tree_eyeglasses.xml"};
+        final int[] cascades = new int[] { R.raw.haar_closed_eye, R.raw.lbpcascade_frontalface_improved, R.raw.haarcascade_eye_tree_eyeglasses, R.raw.haar_closed_eye_improved};
+        final String[] cascadesString = new String[] { "haar_closed_eye.xml", "lbpcascade_frontalface_improved.xml", "haarcascade_eye_tree_eyeglasses.xml", "haar_closed_eye_improved.xml"};
         for (int i = 0; i < cascades.length; i++) {
             try {
                 String path = Environment.getExternalStorageDirectory() + "/Cascades";
