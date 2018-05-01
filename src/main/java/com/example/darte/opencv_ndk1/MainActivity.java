@@ -25,8 +25,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private long startTime;
     private int counter;
     private MediaPlayer alarmSound;
+    // values from seekBar
+    private int sensibility, alarmLength;
+    private float threshold;
+    private String chosenAlarm;
 
-    private int sensity, alarmLength;
+
 
     JavaCameraView javaCameraView;
     Mat mRgba;
@@ -66,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         counter = 0;
         alarmStart = false;
-        alarmSound = MediaPlayer.create(this, R.raw.alarm2);
 
         loadValuesFromSettings();
+        initializeAlarm();
 
         javaCameraView = findViewById(R.id.java_camera_view);
         javaCameraView.setCameraIndex(1);
@@ -103,11 +107,39 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     }
 
-    public void loadValuesFromSettings(){
-        sensity = getIntent().getExtras().getInt("sensity");
-        int sensityMax = getIntent().getExtras().getInt("sensityMax");
-        sensity = (sensityMax - sensity) + 1;
+    public void loadValuesFromSettings() {
+        sensibility = getIntent().getExtras().getInt("sensibility");
+        int sensibilityMax = getIntent().getExtras().getInt("sensibilityMax");
+        sensibility = (sensibilityMax - sensibility) + 1;
+
         alarmLength = getIntent().getExtras().getInt("alarmLength") + 1;
+    }
+
+    private void initializeAlarm() {
+        chosenAlarm = getIntent().getExtras().getString("chosenAlarm");
+        switch (chosenAlarm) {
+            case "Soft alarm":
+                alarmSound = MediaPlayer.create(this, R.raw.soft_alarm);
+                break;
+            case "Fire alarm":
+                alarmSound = MediaPlayer.create(this, R.raw.fire_alarm);
+                break;
+            case "Clock buzzer":
+                alarmSound = MediaPlayer.create(this, R.raw.clock_buzzer);
+                break;
+            case "School bell":
+                alarmSound = MediaPlayer.create(this, R.raw.school_bell);
+                break;
+            case "Tornado siren":
+                alarmSound = MediaPlayer.create(this, R.raw.tornado_siren);
+                break;
+            case "Woop woop":
+                alarmSound = MediaPlayer.create(this, R.raw.woop_woop);
+                break;
+            case "Siren":
+                alarmSound = MediaPlayer.create(this, R.raw.siren);
+                break;
+        }
     }
 
     @Override
@@ -130,34 +162,42 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 eyesOpenedCascade.getNativeObjAddr(),
                 eyesClosedCascade.getNativeObjAddr());
         Core.flip(mRgba, mRgba, 1);
-        runAlarm(sleep, sensity, alarmLength);
+        runAlarm(sleep, sensibility, alarmLength);
 
         return mRgba;
     }
 
-    public void runAlarm(boolean sleep, int sensity, int alarmLength) {
-
-        Log.w(TAG, "counter: " + counter);
+    public void runAlarm(boolean sleep, int sensibility, int alarmLength) {
+        Log.w("alarmStart", "SensibilityMax " + sensibility);
+        Log.w("alarmStart", "Sensibility " + counter);
 
         if (sleep) {
-            if(counter < sensity) counter++;
+            if (counter < sensibility) counter++;
         } else {
-            if(counter > 0) counter--;
+            if (counter > 0) counter--;
         }
 
-        if (counter == sensity) {
-            if(!alarmStart) {
+        if (counter == sensibility) {
+            if (!alarmStart) {
                 startTime = System.currentTimeMillis();
+                alarmSound.start();
                 alarmStart = true;
             }
         }
 
-        if(alarmStart){
+        if (alarmStart) {
             float estimatedTime = System.currentTimeMillis() - startTime;
-            if((estimatedTime/1000 < alarmLength)) alarmSound.start();
-            else alarmStart = false;
+            if ((estimatedTime / 1000 < alarmLength)) {
+                alarmSound.start();
+            } else {
+                alarmStart = false;
+                stopAlarm();
+            }
         }
+    }
 
-        Log.w(TAG, "runAlarm: " + alarmStart );
+    private void stopAlarm() {
+        alarmSound.pause();
+        alarmSound.seekTo(0);
     }
 }

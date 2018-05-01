@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,9 +22,9 @@ import java.io.InputStream;
 public class SettingsActivity extends Activity {
 
     private Button button;
-    private int sensity;
+    private Spinner spinner;
+    private int sensibility;
     private int alarmLength;
-
 
     private void CopyRAWtoSDCard(int id, String path) throws IOException {
         InputStream in = getResources().openRawResource(id);
@@ -41,7 +44,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_setting);
 
 
         final int[] cascades = new int[] { R.raw.haar_closed_eye, R.raw.lbpcascade_frontalface_improved, R.raw.haarcascade_eye_tree_eyeglasses, R.raw.haar_closed_eye_improved};
@@ -60,50 +63,60 @@ public class SettingsActivity extends Activity {
         }
 
 
-        SeekBar sensitySeekBar = findViewById(R.id.sensitySeekBar);
-        sensitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        TextView textSensibility = (TextView) findViewById(R.id.textSensity);
+        TextView textLength = (TextView) findViewById(R.id.textLength);
+
+        // init values
+        sensibility = 20;
+        alarmLength = 2;
+
+        spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sound, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        SeekBar sensibilitySeekBar = (SeekBar) findViewById(R.id.seekBarSensibility);
+        sensibilitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                sensity = i;
+                sensibility = i;
+                textSensibility.setText("Sensibility: " + sensibility * 4 + " %");
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
-        SeekBar timeSeekBar = findViewById(R.id.timeSeekBar);
-        timeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        SeekBar lengthSeekBar = (SeekBar) findViewById(R.id.seekBarLength);
+        lengthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                alarmLength = i;
+                alarmLength = i + 1;
+                textLength.setText("Alarm length: " + alarmLength + " s");
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
-        button = findViewById(R.id.button);
+        button = (Button) findViewById(R.id.button);
         button.setOnClickListener((v) -> {
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-            intent.putExtra("sensity", sensity);
-            intent.putExtra("sensityMax", sensitySeekBar.getMax());
+            intent.putExtra("sensibility", sensibility);
+            intent.putExtra("sensibilityMax", sensibilitySeekBar.getMax());
             intent.putExtra("alarmLength", alarmLength);
+            intent.putExtra("chosenAlarm", spinner.getSelectedItem().toString());
             startActivity(intent);
         });
-
     }
 }
