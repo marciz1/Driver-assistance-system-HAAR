@@ -30,7 +30,7 @@ public class SettingsActivity extends Activity {
         InputStream in = getResources().openRawResource(id);
         FileOutputStream out = new FileOutputStream(path);
         byte[] buff = new byte[1024];
-        int read = 0;
+        int read;
         try {
             while ((read = in.read(buff)) > 0) {
                 out.write(buff, 0, read);
@@ -63,19 +63,19 @@ public class SettingsActivity extends Activity {
         }
 
 
-        TextView textSensibility = (TextView) findViewById(R.id.textSensity);
-        TextView textLength = (TextView) findViewById(R.id.textLength);
+        TextView textSensibility = findViewById(R.id.textSensity);
+        TextView textLength = findViewById(R.id.textLength);
 
         // init values
         sensibility = 20;
         alarmLength = 2;
 
-        spinner = (Spinner) findViewById(R.id.spinner);
+        spinner = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sound, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        SeekBar sensibilitySeekBar = (SeekBar) findViewById(R.id.seekBarSensibility);
+        SeekBar sensibilitySeekBar = findViewById(R.id.seekBarSensibility);
         sensibilitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -92,7 +92,7 @@ public class SettingsActivity extends Activity {
             }
         });
 
-        SeekBar lengthSeekBar = (SeekBar) findViewById(R.id.seekBarLength);
+        SeekBar lengthSeekBar = findViewById(R.id.seekBarLength);
         lengthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -109,7 +109,7 @@ public class SettingsActivity extends Activity {
             }
         });
 
-        button = (Button) findViewById(R.id.button);
+        button = findViewById(R.id.button);
         button.setOnClickListener((v) -> {
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
             intent.putExtra("sensibility", sensibility);
