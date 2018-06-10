@@ -16,6 +16,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -27,10 +28,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private MediaPlayer alarmSound;
     // values from seekBar
     private int sensibility, alarmLength;
-    private float threshold;
     private String chosenAlarm;
-
-
 
     JavaCameraView javaCameraView;
     Mat mRgba;
@@ -111,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         sensibility = getIntent().getExtras().getInt("sensibility");
         int sensibilityMax = getIntent().getExtras().getInt("sensibilityMax");
         sensibility = (sensibilityMax - sensibility) + 1;
-
         alarmLength = getIntent().getExtras().getInt("alarmLength") + 1;
     }
 
@@ -157,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         mRgba = inputFrame.rgba();
 
-        boolean sleep = OpencvNativeClass.faceDetection(mRgba.getNativeObjAddr(),
+        boolean sleep = OpencvNativeClass.sleepDetection(mRgba.getNativeObjAddr(),
                 faceCascade.getNativeObjAddr(),
                 eyesOpenedCascade.getNativeObjAddr(),
                 eyesClosedCascade.getNativeObjAddr());

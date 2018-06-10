@@ -26,49 +26,19 @@ public class SettingsActivity extends Activity {
     private int sensibility;
     private int alarmLength;
 
-    private void CopyRAWtoSDCard(int id, String path) throws IOException {
-        InputStream in = getResources().openRawResource(id);
-        FileOutputStream out = new FileOutputStream(path);
-        byte[] buff = new byte[1024];
-        int read;
-        try {
-            while ((read = in.read(buff)) > 0) {
-                out.write(buff, 0, read);
-            }
-        } finally {
-            in.close();
-            out.close();
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-
-        final int[] cascades = new int[] { R.raw.haar_closed_eye, R.raw.lbpcascade_frontalface_improved, R.raw.haarcascade_eye_tree_eyeglasses, R.raw.haar_closed_eye_improved};
-        final String[] cascadesString = new String[] { "haar_closed_eye.xml", "lbpcascade_frontalface_improved.xml", "haarcascade_eye_tree_eyeglasses.xml", "haar_closed_eye_improved.xml"};
-        for (int i = 0; i < cascades.length; i++) {
-            try {
-                String path = Environment.getExternalStorageDirectory() + "/Cascades";
-                File dir = new File(path);
-                if (dir.mkdirs() || dir.isDirectory()) {
-                    String strCascadeName = cascadesString[i];
-                    CopyRAWtoSDCard(cascades[i], path + File.separator + strCascadeName);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        TextView textSensibility = findViewById(R.id.textSensity);
-        TextView textLength = findViewById(R.id.textLength);
+        copyCascadesToSD();
 
         // init values
         sensibility = 20;
         alarmLength = 2;
+
+        TextView textSensibility = findViewById(R.id.textSensity);
+        TextView textLength = findViewById(R.id.textLength);
 
         spinner = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sound, android.R.layout.simple_spinner_item);
@@ -118,5 +88,38 @@ public class SettingsActivity extends Activity {
             intent.putExtra("chosenAlarm", spinner.getSelectedItem().toString());
             startActivity(intent);
         });
+    }
+
+    private void copyCascadesToSD() {
+        final int[] cascades = new int[] {R.raw.lbpcascade_frontalface_improved, R.raw.haarcascade_eye_tree_eyeglasses, R.raw.haar_closed_eye_improved};
+        final String[] cascadesString = new String[] {"lbpcascade_frontalface_improved.xml", "haarcascade_eye_tree_eyeglasses.xml", "haar_closed_eye_improved.xml"};
+
+        String path = Environment.getExternalStorageDirectory() + "/Cascades";
+        File dir = new File(path);
+
+        for (int i = 0; i < cascades.length; i++) {
+            try {
+                if (dir.mkdirs() || dir.isDirectory()) {
+                    CopyRAWtoSD(cascades[i], path + File.separator + cascadesString[i]);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void CopyRAWtoSD(int id, String path) throws IOException {
+        InputStream in = getResources().openRawResource(id);
+        FileOutputStream out = new FileOutputStream(path);
+        byte[] buff = new byte[1024];
+        int read;
+        try {
+            while ((read = in.read(buff)) > 0) {
+                out.write(buff, 0, read);
+            }
+        } finally {
+            in.close();
+            out.close();
+        }
     }
 }

@@ -13,7 +13,7 @@ bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
 void rotate(Mat& src, int angle);
 
 JNIEXPORT jboolean JNICALL
-Java_com_example_darte_opencv_1ndk1_OpencvNativeClass_faceDetection(JNIEnv *env, jclass type,
+Java_com_example_darte_opencv_1ndk1_OpencvNativeClass_sleepDetection(JNIEnv *env, jclass type,
                                                                     jlong matAddrRgba, jlong cascadeFace, jlong cascadeOpenedEyes, jlong cascadeClosedEyes) {
     Mat& frame = *(Mat*)matAddrRgba;
     CascadeClassifier& cascadeFace1 = *(CascadeClassifier*) cascadeFace;
@@ -38,7 +38,6 @@ bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
     cvtColor( frame, frameGray, CV_BGR2GRAY );
     equalizeHist( frameGray, frameGray );
 
-    //-- Detect faces
     faceCascade.detectMultiScale( frameGray, faces, 1.1, 1, 0|CV_HAAR_SCALE_IMAGE, Size(150, 150) );
 
     for( size_t i = 0; i < faces.size(); i++ ){
@@ -48,11 +47,10 @@ bool detect(Mat& frame, CascadeClassifier& faceCascade, CascadeClassifier& eyesO
         vector<Rect> eyesOpened;
         vector<Rect> eyesClosed;
 
-        //-- In each face, detect eyes
         eyesOpenedCascade.detectMultiScale( faceROI, eyesOpened, 1.1, 13, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30));
         eyesClosedCascade.detectMultiScale( faceROI, eyesClosed, 1.1, 13, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
-        if(eyesOpened.size() == 2) eyesOpenedBln = true;
+        if(eyesOpened.size() != 0) eyesOpenedBln = true;
         if(eyesClosed.size() == 2 && !eyesOpenedBln) sleep = true;
 
         for( size_t j = 0; j < eyesOpened.size(); j++ ){
